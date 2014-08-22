@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 
-from wsgi.openshift.verifier.views import VerificationView
+from verifier.views import VerificationView
 
 admin.autodiscover()
 
