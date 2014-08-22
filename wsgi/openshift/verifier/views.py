@@ -11,7 +11,7 @@ from verifier.forms import VerificationForm
 
 class VerificationView(FormView):
     form_class = VerificationForm
-    template_name = "verify.html"
+    template_name = "verifier/verify.html"
     success_url = '/'
 
     def form_valid(self, form):
