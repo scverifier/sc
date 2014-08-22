@@ -12,3 +12,5 @@ venv/
 virtenv/
 dist/
 build/
+.idea
+db.sqlite3
