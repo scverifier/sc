@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load staticfiles  %}
+
+{% block title %}
+Verification
+{% endblock %}
+
+{% block includes %}
+    <link rel="stylesheet" href="{% static 'verifier/verify.css' %}"/>
+    <script src="{% static 'verifier/verify.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+    <h2 class="form-verify-heading">Verify this user</h2>
+    <form action="" method="POST" class="form-verify"> {% csrf_token %}
+        {{ form.username }} <input type="button" id="btnCheckUser" value="Check User" />
+        <img src="{% static 'verifier/ajax-loader.gif' %}" alt="Loading..." id="imgCheckStatusLoading" style="display: None"/>
+        <span id="spUserExists" style="display: none" class="green statusSpan">User exists</span>
+        <span id="spUserNotExists" style="display: none" class="red statusSpan">User doesn't exist :(</span>
+        {{ form.gender }}
+        <input type="submit" value="Verify"/>
+    </form>
+{% endblock %}
