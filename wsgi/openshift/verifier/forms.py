@@ -2,18 +2,17 @@ from django.forms.fields import CharField, ChoiceField
 from django.forms.forms import Form
 from django.forms.widgets import RadioSelect
 from praw import Reddit
+from verifier.models import Gender
 
 
 class VerificationForm(Form):
     username = CharField()
-    gender = ChoiceField(choices=(
-                                 ('male', 'Male'),
-                                 ('female', 'Female'),
-                                 ('couple', 'Couple'),
-                                 ('trans', 'Trans'),
-                                 ),
-                         widget=RadioSelect
-                        )
+    # gender = ChoiceField(widget=RadioSelect)
+    
+    def __init__(self, *args, **kwargs):
+        super(VerificationForm, self).__init__(*args, **kwargs)
+        choices = [(g.id, g) for g in Gender.objects.all()]
+        self.fields['gender'] = ChoiceField(widget=RadioSelect, choices=choices)
 
     def verify(self):
         username = self.cleaned_data['username']

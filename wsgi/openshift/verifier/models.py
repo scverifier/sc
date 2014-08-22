@@ -3,14 +3,17 @@ from django.db import models
 # Create your models here.
 from django.db.models.base import Model
 from django.db.models.fields.related import ManyToManyField
-from django.forms.fields import CharField
+import django.db.models as models
 
 
 class Gender(Model):
-    name = CharField(max_length=64)
-    css_class = CharField(max_length=64)
+    name = models.CharField(max_length=64)
+    css_class = models.CharField(max_length=64)
+
+    def __unicode__(self):
+        return self.name
 
 
 class Subreddit(Model):
-    name = CharField(max_length=128)
+    name = models.CharField(max_length=128)
     gender = ManyToManyField(Gender)
