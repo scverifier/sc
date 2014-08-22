@@ -6,14 +6,17 @@ from django.db.models.fields.related import ManyToManyField
 import django.db.models as models
 
 
-class Gender(Model):
-    name = models.CharField(max_length=64)
-    css_class = models.CharField(max_length=64)
+class Subreddit(Model):
+    name = models.CharField(max_length=128)
 
     def __unicode__(self):
         return self.name
 
 
-class Subreddit(Model):
-    name = models.CharField(max_length=128)
-    gender = ManyToManyField(Gender)
+class Gender(Model):
+    name = models.CharField(max_length=64)
+    css_class = models.CharField(max_length=64)
+    subreddits = models.ManyToManyField(Subreddit)
+
+    def __unicode__(self):
+        return self.name

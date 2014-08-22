@@ -1,0 +1,17 @@
+{% extends "verifier/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+    Gender
+{% endblock %}
+
+{% block includes %}
+{#    <link rel="stylesheet" href="{% static 'verifier/login.css' %}"/>#}
+{% endblock %}
+
+{% block body %}
+    <form action="" method="POST">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Save"/>
+    </form>
+{% endblock %}

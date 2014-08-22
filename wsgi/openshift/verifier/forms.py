@@ -1,8 +1,8 @@
 from django.forms.fields import CharField, ChoiceField
 from django.forms.forms import Form
-from django.forms.widgets import RadioSelect
+from django.forms.widgets import RadioSelect, Textarea
 from praw import Reddit
-from verifier.models import Gender
+from verifier.models import Gender, Subreddit
 
 
 class VerificationForm(Form):
@@ -27,3 +27,39 @@ class VerificationForm(Form):
         print('Contributor added')
         api.set_flair(subreddit, username, gender)
         print('Flair set')
+
+
+class GenderForm(Form):
+    name = CharField()
+    css_class = CharField()
+    subreddits = CharField(widget=Textarea)
+
+    def save(self, pk=None):
+        print(pk)
+        name = self.cleaned_data['name']
+        css_class = self.cleaned_data['css_class']
+        subreddit_names = self.cleaned_data['subreddits']
+        subreddit_names = subreddit_names.strip().split('\r\n')
+        subreddit_names = [s.strip() for s in subreddit_names]
+        subreddit_names = filter(lambda x: x, subreddit_names)
+
+        if pk:
+            gender = Gender.objects.get(pk=pk)
+        else:
+            gender = Gender()
+        gender.save()
+
+        gender.name = name
+        gender.css_class = css_class
+
+        subreddits = []
+        for subreddit_name in subreddit_names:
+            print(subreddit_name)
+            subreddit, created = Subreddit.objects.get_or_create(name=subreddit_name)
+            subreddit.save()
+            subreddits.append(subreddit)
+
+        gender.subreddits.clear()
+        gender.subreddits.add(*subreddits)
+
+        gender.save()
