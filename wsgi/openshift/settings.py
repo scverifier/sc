@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'rest_framework',
     'verifier',
     'api',
@@ -133,3 +134,5 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login'
 
 USER_AGENT = 'ssutekh/verifier_0.1a'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap'

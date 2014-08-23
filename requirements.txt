@@ -2,4 +2,4 @@ django
 static
 praw
 djangorestframework
-south
+django-crispy-forms

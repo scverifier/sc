@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
 <head lang="en">
@@ -5,11 +7,18 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="{% static 'verifier/base.css' %}"/>
     {% block includes %}
     {% endblock %}
     <title>Verification - {% block title %} {% endblock %}</title>
 </head>
 <body>
+
+<nav class="navbar navbar-default" role="navigation">
+    {% include "verifier/navbar_content.html" %}
+</nav>
+
 {% if user.is_authenticated %}
     Logged in as {{ user.username }}. <a href="/logout">Log out</a>
 {% endif %}

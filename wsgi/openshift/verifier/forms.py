@@ -1,3 +1,7 @@
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+from django import forms as forms
+from django.forms import widgets as widgets
 from django.forms.fields import CharField, ChoiceField
 from django.forms.forms import Form
 from django.forms.widgets import RadioSelect, Textarea
@@ -63,3 +67,15 @@ class GenderForm(Form):
         gender.subreddits.add(*subreddits)
 
         gender.save()
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=widgets.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-standard'
+        # self.helper.field_class = 'form-control'
+        self.helper.add_input(Submit('submit', 'Log in', css_class='btn btn-lg btn-primary btn-block'))

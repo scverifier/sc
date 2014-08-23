@@ -8,7 +8,7 @@ from praw import Reddit
 from requests import HTTPError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from verifier.forms import VerificationForm, GenderForm
+from verifier.forms import VerificationForm, GenderForm, LoginForm
 from verifier.models import Gender
 
 
@@ -70,3 +70,9 @@ class GenderCreateView(FormView):
         form.save(pk)
 
         return super(GenderCreateView, self).form_valid(form)
+
+
+class LoginView(FormView):
+    form_class = LoginForm
+    template_name = 'verifier/login.html'
+    success_url = '/'

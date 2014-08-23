@@ -9,10 +9,9 @@
     <link rel="stylesheet" href="{% static 'verifier/login.css' %}"/>
 {% endblock %}
 
+{% load crispy_forms_tags %}
 {% block body %}
-    <form action="" method="POST" class="form-signin">{% csrf_token %}
-        <input class="form-control" type="text" id="id_username" name="username" placeholder="User name"/>
-        <input class="form-control" type="password" id="id_password" name="password" placeholder="Password"/>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Log in</button>
-    </form>
+
+    {% crispy form %}
+
 {% endblock %}
