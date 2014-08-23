@@ -7,6 +7,7 @@ from django.http.response import HttpResponseRedirect, HttpResponseNotFound
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, CreateView
 from django.views.generic.base import RedirectView
+from django.views.generic.list import ListView
 from praw import Reddit
 from requests import HTTPError
 from rest_framework.views import APIView
@@ -51,7 +52,7 @@ class UserView(APIView):
 class GenderCreateView(LoginRequiredMixin, FormView):
     form_class = GenderForm
     template_name = 'verifier/gender.html'
-    success_url = '/'
+    success_url = '/data/genders'
     gender = None
 
     def get_initial(self):
@@ -59,7 +60,6 @@ class GenderCreateView(LoginRequiredMixin, FormView):
 
         if self.gender:
             initial['name'] = self.gender.name
-            initial['subreddits'] = self.gender.subreddits.all()
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -77,6 +77,11 @@ class GenderCreateView(LoginRequiredMixin, FormView):
         form.save(pk)
 
         return super(GenderCreateView, self).form_valid(form)
+
+
+class GenderListView(ListView):
+    model = Gender
+    template_name = 'verifier/genders.html'
 
 
 class LoginView(FormView):

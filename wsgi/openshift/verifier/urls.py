@@ -1,9 +1,9 @@
 from django.conf.urls import patterns, url
-from verifier.views import GenderCreateView
+from verifier.views import GenderCreateView, GenderListView
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^/gender$', GenderCreateView.as_view(), name='gender_create'),
-    url(r'^/gender/(?P<pk>\d+)', GenderCreateView.as_view(), name='gender_edit'),
-    url(r'^/gender/', GenderCreateView.as_view(), name='gender_edit'),
+    url(r'^/genders/new$', GenderCreateView.as_view(), name='gender_create'),
+    url(r'^/genders/(?P<pk>\d+)', GenderCreateView.as_view(), name='gender_edit'),
+    url(r'^/genders', GenderListView.as_view(), name='gender_edit'),
 )

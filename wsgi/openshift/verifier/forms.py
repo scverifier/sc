@@ -55,7 +55,7 @@ class GenderForm(Form):
 
         #TODO: implement subreddit saving logic
 
-        gender.save()
+        # gender.save()
 
 
 class LoginForm(forms.Form):

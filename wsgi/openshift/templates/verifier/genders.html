@@ -1,0 +1,31 @@
+{% extends "verifier/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+    Genders
+{% endblock %}
+
+{% block includes %}
+    <link rel="stylesheet" href="{% static 'verifier/genders.css' %}"/>
+{% endblock %}
+
+{% block body %}
+
+    <div class="panel">
+        <h2>Genders
+            <a href="/data/genders/new" class="btn btn-success">Add</a>
+        </h2>
+        <div class="panel-body">
+            <ul class="list-group">
+                {% for gender in object_list %}
+                    <li class="list-group-item">
+                        {{ gender.name }}
+                        <a href="/data/genders/{{ gender.id }}" class="btn">Edit</a>
+                        <a href="#" class="btn" disabled>View Subreddits</a>
+                        <a href="#" class="btn btn-danger" disabled>Delete</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
