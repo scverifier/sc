@@ -61,7 +61,7 @@ class GenderForm(Form):
     name = CharField()
     subreddits = django_models.ModelMultipleChoiceField(queryset=models.Subreddit.objects.all(),
                                           widget=widgets.CheckboxSelectMultiple)
-    
+
     def __init__(self, *args, **kwargs):
         super(GenderForm, self).__init__(*args, **kwargs)
 
@@ -93,6 +93,4 @@ class SubredditForm(forms.ModelForm):
         model = models.Subreddit
         fields = [
             'name',
-            'default_flair_css',
-            'default_flair_text',
             ]

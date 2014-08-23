@@ -12,6 +12,7 @@ urlpatterns = patterns('',
         model=Gender, template_name='verifier/genders.html')), name='gender_list'),
 
     url(r'^/subreddits/new$', SubredditEditView.as_view(), name='subreddit_create'),
+    url(r'^/subreddits/(?P<pk>\d+)', SubredditEditView.as_view(), name='subreddit_edit'),
     url(r'^/subreddits', login_required(ListView.as_view(
         model=Subreddit, template_name='verifier/subreddits.html')), name='subreddit_list'),
 )

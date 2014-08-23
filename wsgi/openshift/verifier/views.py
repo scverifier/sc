@@ -3,17 +3,16 @@ from django.conf import settings
 # Create your views here.
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.http.response import HttpResponseRedirect, HttpResponseNotFound
+from django.http.response import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, CreateView
-from django.views.generic.base import RedirectView
+from django.views.generic import FormView
 from django.views.generic.list import ListView
 from praw import Reddit
 from requests import HTTPError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from verifier.forms import VerificationForm, GenderForm, LoginForm, SubredditForm
-from verifier.models import Gender, Subreddit
+import verifier.forms as verifier_forms
+import verifier.models as models
 
 
 class LoginRequiredMixin(object):
@@ -23,7 +22,7 @@ class LoginRequiredMixin(object):
 
 
 class LoginView(FormView):
-    form_class = LoginForm
+    form_class = verifier_forms.LoginForm
     template_name = 'verifier/login.html'
     success_url = '/'
 
@@ -37,7 +36,7 @@ class LoginView(FormView):
 
 
 class VerificationView(LoginRequiredMixin, FormView):
-    form_class = VerificationForm
+    form_class = verifier_forms.VerificationForm
     template_name = "verifier/verify.html"
     success_url = '/'
 
@@ -65,7 +64,7 @@ class UserView(APIView):
 
 
 class GenderEditView(LoginRequiredMixin, FormView):
-    form_class = GenderForm
+    form_class = verifier_forms.GenderForm
     template_name = 'verifier/gender.html'
     success_url = '/data/genders'
     gender = None
@@ -75,13 +74,16 @@ class GenderEditView(LoginRequiredMixin, FormView):
 
         if self.gender:
             initial['name'] = self.gender.name
+            initial['default_flair_css'] = self.gender.default_flair_css
+            initial['default_flair_text'] = self.gender.default_flair_text
+            initial['subreddits'] = self.gender.gendersubreddit_set
         return initial
 
     def get(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk', None)
         if pk:
             try:
-                self.gender = Gender.objects.get(pk=pk)
+                self.gender = models.Gender.objects.get(pk=pk)
             except:
                 return HttpResponseNotFound()
         return super(GenderEditView, self).get(request, *args, **kwargs)
@@ -95,15 +97,28 @@ class GenderEditView(LoginRequiredMixin, FormView):
 
 
 class GenderListView(LoginRequiredMixin, ListView):
-    model = Gender
+    model = models.Gender
     template_name = 'verifier/genders.html'
 
 
 class SubredditEditView(LoginRequiredMixin, FormView):
-    model = Subreddit
+    model = models.Subreddit
     template_name = 'verifier/subreddit.html'
     success_url = '/data/subreddits'
-    form_class = SubredditForm
+    form_class = verifier_forms.SubredditForm
+
+    def get_form_kwargs(self):
+        kwargs = super(SubredditEditView, self).get_form_kwargs()
+        if 'pk' in self.kwargs:
+            subreddit = models.Subreddit.objects.get(id=self.kwargs['pk'])
+            kwargs['instance'] = subreddit
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super(SubredditEditView, self).get(request, *args, **kwargs)
+        except models.models.exceptions.ObjectDoesNotExist:
+            return HttpResponseNotFound()
 
     def form_valid(self, form):
         form.save()

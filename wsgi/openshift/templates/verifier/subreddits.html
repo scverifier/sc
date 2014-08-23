@@ -20,7 +20,7 @@
                 {% for subreddit in object_list %}
                     <li class="list-group-item">
                         {{ subreddit.name }}
-                        <a href="#" class="btn" disabled>Edit</a>
+                        <a href="/data/subreddits/{{ subreddit.id }}" class="btn">Edit</a>
 {#                        <a href="#" class="btn" disabled>View Subreddits</a>#}
                         <a href="#" class="btn btn-danger" disabled>Delete</a>
                     </li>
