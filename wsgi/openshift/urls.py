@@ -8,7 +8,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^$', login_required(VerificationView.as_view()), name='home'),
+    url(r'^$', VerificationView.as_view(), name='home'),
     # url(r'^verify$', login_required(VerificationView.as_view()), name='verify'),
     url(r'^login$', LoginView.as_view(), name='login'),
     url(r'^logout$', 'django.contrib.auth.views.logout',

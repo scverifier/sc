@@ -22,9 +22,9 @@ class Gender(Model):
 
 
 class GenderSubreddit(Model):
-    Gender = models.ForeignKey(Gender)
-    Subreddit = models.ForeignKey(Subreddit)
-    flair_css = models.CharField(max_length=128)
+    gender = models.ForeignKey(Gender)
+    subreddit = models.ForeignKey(Subreddit)
+    flair_css = models.CharField(max_length=128, null=True)
     flair_text = models.CharField(max_length=128, null=True)
 
 

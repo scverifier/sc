@@ -2,7 +2,9 @@ from django.conf import settings
 
 # Create your views here.
 from django.contrib.auth import authenticate, login
-from django.http.response import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from django.http.response import HttpResponseRedirect, HttpResponseNotFound
+from django.utils.decorators import method_decorator
 from django.views.generic import FormView, CreateView
 from django.views.generic.base import RedirectView
 from praw import Reddit
@@ -10,10 +12,15 @@ from requests import HTTPError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from verifier.forms import VerificationForm, GenderForm, LoginForm
-from verifier.models import Gender
+from verifier.models import Gender, Subreddit
+
+class LoginRequiredMixin(object):
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
-class VerificationView(FormView):
+class VerificationView(LoginRequiredMixin, FormView):
     form_class = VerificationForm
     template_name = "verifier/verify.html"
     success_url = '/'
@@ -41,7 +48,7 @@ class UserView(APIView):
         return Response(data)
 
 
-class GenderCreateView(FormView):
+class GenderCreateView(LoginRequiredMixin, FormView):
     form_class = GenderForm
     template_name = 'verifier/gender.html'
     success_url = '/'
@@ -52,8 +59,7 @@ class GenderCreateView(FormView):
 
         if self.gender:
             initial['name'] = self.gender.name
-            initial['css_class'] = self.gender.css_class
-            initial['subreddits'] = '\r\n'.join((s.name for s in self.gender.subreddits.all()))
+            initial['subreddits'] = self.gender.subreddits.all()
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -62,7 +68,7 @@ class GenderCreateView(FormView):
             try:
                 self.gender = Gender.objects.get(pk=pk)
             except:
-                return HttpResponseRedirect('/')
+                return HttpResponseNotFound()
         return super(GenderCreateView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -76,10 +82,12 @@ class GenderCreateView(FormView):
 class LoginView(FormView):
     form_class = LoginForm
     template_name = 'verifier/login.html'
-    success_url = '/'
+    # success_url = '/'
 
     def form_valid(self, form):
         username, password = form.cleaned_data['username'], form.cleaned_data['password']
         user = authenticate(username=username, password=password)
         login(self.request, user)
+        if 'next' in self.request.GET:
+            return HttpResponseRedirect(self.request.GET['next'])
         return super(LoginView, self).form_valid(form)
