@@ -9,7 +9,7 @@ import django.db.models as models
 class Subreddit(Model):
     name = models.CharField(max_length=128)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -18,5 +18,5 @@ class Gender(Model):
     css_class = models.CharField(max_length=64)
     subreddits = models.ManyToManyField(Subreddit)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
