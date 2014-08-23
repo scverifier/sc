@@ -12,13 +12,28 @@ from praw import Reddit
 from requests import HTTPError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from verifier.forms import VerificationForm, GenderForm, LoginForm
+from verifier.forms import VerificationForm, GenderForm, LoginForm, SubredditForm
 from verifier.models import Gender, Subreddit
+
 
 class LoginRequiredMixin(object):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class LoginView(FormView):
+    form_class = LoginForm
+    template_name = 'verifier/login.html'
+    success_url = '/'
+
+    def form_valid(self, form):
+        username, password = form.cleaned_data['username'], form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+        login(self.request, user)
+        if 'next' in self.request.GET:
+            return HttpResponseRedirect(self.request.GET['next'])
+        return super(LoginView, self).form_valid(form)
 
 
 class VerificationView(LoginRequiredMixin, FormView):
@@ -49,14 +64,14 @@ class UserView(APIView):
         return Response(data)
 
 
-class GenderCreateView(LoginRequiredMixin, FormView):
+class GenderEditView(LoginRequiredMixin, FormView):
     form_class = GenderForm
     template_name = 'verifier/gender.html'
     success_url = '/data/genders'
     gender = None
 
     def get_initial(self):
-        initial = super(GenderCreateView, self).get_initial()
+        initial = super(GenderEditView, self).get_initial()
 
         if self.gender:
             initial['name'] = self.gender.name
@@ -69,30 +84,27 @@ class GenderCreateView(LoginRequiredMixin, FormView):
                 self.gender = Gender.objects.get(pk=pk)
             except:
                 return HttpResponseNotFound()
-        return super(GenderCreateView, self).get(request, *args, **kwargs)
+        return super(GenderEditView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
         pk = self.kwargs.get('pk', None)
 
         form.save(pk)
 
-        return super(GenderCreateView, self).form_valid(form)
+        return super(GenderEditView, self).form_valid(form)
 
 
-class GenderListView(ListView):
+class GenderListView(LoginRequiredMixin, ListView):
     model = Gender
     template_name = 'verifier/genders.html'
 
 
-class LoginView(FormView):
-    form_class = LoginForm
-    template_name = 'verifier/login.html'
-    # success_url = '/'
+class SubredditEditView(LoginRequiredMixin, FormView):
+    model = Subreddit
+    template_name = 'verifier/subreddit.html'
+    success_url = '/data/subreddits'
+    form_class = SubredditForm
 
     def form_valid(self, form):
-        username, password = form.cleaned_data['username'], form.cleaned_data['password']
-        user = authenticate(username=username, password=password)
-        login(self.request, user)
-        if 'next' in self.request.GET:
-            return HttpResponseRedirect(self.request.GET['next'])
-        return super(LoginView, self).form_valid(form)
+        form.save()
+        return super(SubredditEditView, self).form_valid(form)

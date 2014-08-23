@@ -8,6 +8,8 @@ import django.db.models as models
 
 class Subreddit(Model):
     name = models.CharField(max_length=128)
+    default_flair_css = models.CharField(max_length=128, blank=True)
+    default_flair_text = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return self.name

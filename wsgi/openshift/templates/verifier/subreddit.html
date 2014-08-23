@@ -1,0 +1,15 @@
+{% extends "verifier/base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+    Subredddit
+{% endblock %}
+
+{% block includes %}
+{#    <link rel="stylesheet" href="{% static 'verifier/login.css' %}"/>#}
+{% endblock %}
+
+{% load crispy_forms_tags %}
+{% block body %}
+    {% crispy form %}
+{% endblock %}
