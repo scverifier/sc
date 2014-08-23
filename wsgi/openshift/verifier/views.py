@@ -1,6 +1,7 @@
 from django.conf import settings
 
 # Create your views here.
+from django.contrib.auth import authenticate, login
 from django.http.response import HttpResponseRedirect
 from django.views.generic import FormView, CreateView
 from django.views.generic.base import RedirectView
@@ -76,3 +77,9 @@ class LoginView(FormView):
     form_class = LoginForm
     template_name = 'verifier/login.html'
     success_url = '/'
+
+    def form_valid(self, form):
+        username, password = form.cleaned_data['username'], form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+        login(self.request, user)
+        return super(LoginView, self).form_valid(form)

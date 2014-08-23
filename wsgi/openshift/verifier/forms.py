@@ -1,6 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms as forms
+from django.contrib.auth import authenticate, login
 from django.forms import widgets as widgets
 from django.forms.fields import CharField, ChoiceField
 from django.forms.forms import Form
@@ -77,5 +78,16 @@ class LoginForm(forms.Form):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'form-standard'
-        # self.helper.field_class = 'form-control'
+        self.helper.error_text_inline = False
         self.helper.add_input(Submit('submit', 'Log in', css_class='btn btn-lg btn-primary btn-block'))
+
+    def is_valid(self):
+        result = super(LoginForm, self).is_valid()
+        if result:
+            username, password = (self.cleaned_data[x] for x in ('username', 'password'))
+            user = authenticate(username=username, password=password)
+            if not user:
+                self.errors['password'] = ['Invalid username or password.']
+                result = False
+        return result
+
