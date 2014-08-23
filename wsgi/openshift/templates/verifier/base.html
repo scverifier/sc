@@ -5,7 +5,10 @@
 <head lang="en">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" href="{% static 'verifier/base.css' %}"/>
@@ -18,10 +21,6 @@
 <nav class="navbar navbar-default" role="navigation">
     {% include "verifier/navbar_content.html" %}
 </nav>
-
-{% if user.is_authenticated %}
-    Logged in as {{ user.username }}. <a href="/logout">Log out</a>
-{% endif %}
 
 {% block body %}
 {% endblock %}
