@@ -1,3 +1,5 @@
+import traceback
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms as forms
@@ -36,7 +38,7 @@ class LoginForm(forms.Form):
 class VerificationForm(Form):
     username = CharField()
     # gender = ChoiceField(widget=RadioSelect)
-    
+
     def __init__(self, *args, **kwargs):
         super(VerificationForm, self).__init__(*args, **kwargs)
         choices = [(g.id, g) for g in models.Gender.objects.all()]
@@ -58,11 +60,16 @@ class VerificationForm(Form):
 
 
 class GenderForm(Form):
+    instance = None
+
     name = CharField()
     subreddits = django_models.ModelMultipleChoiceField(queryset=models.Subreddit.objects.all(),
                                           widget=widgets.CheckboxSelectMultiple)
 
     def __init__(self, *args, **kwargs):
+        if 'instance' in kwargs:
+            self.instance = kwargs['instance']
+            del kwargs['instance']
         super(GenderForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()

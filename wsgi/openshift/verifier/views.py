@@ -69,15 +69,11 @@ class GenderEditView(LoginRequiredMixin, FormView):
     success_url = '/data/genders'
     gender = None
 
-    def get_initial(self):
-        initial = super(GenderEditView, self).get_initial()
-
+    def get_form_kwargs(self):
+        kwargs = super(GenderEditView, self).get_form_kwargs()
         if self.gender:
-            initial['name'] = self.gender.name
-            initial['default_flair_css'] = self.gender.default_flair_css
-            initial['default_flair_text'] = self.gender.default_flair_text
-            initial['subreddits'] = self.gender.gendersubreddit_set
-        return initial
+            kwargs['instance'] = self.gender
+        return kwargs
 
     def get(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk', None)
