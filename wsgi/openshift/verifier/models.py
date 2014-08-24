@@ -27,6 +27,9 @@ class GenderSubreddit(Model):
     flair_css = models.CharField(max_length=128, null=True)
     flair_text = models.CharField(max_length=128, null=True)
 
+    def __str__(self):
+        return '{0} - {1}'.format(self.gender, self.subreddit)
+
 
 class Verification(Model):
     username = models.CharField(max_length=128)

@@ -4,6 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms as forms
 from django.contrib.auth import authenticate
+from django.db import transaction
 from django.forms.fields import CharField, ChoiceField
 from django.forms.forms import Form
 import django.forms.models as django_models
@@ -59,17 +60,20 @@ class VerificationForm(Form):
         print('Flair set')
 
 
-class GenderForm(Form):
-    instance = None
+class GenderForm(django_models.ModelForm):
+    class Meta:
+        model = models.Gender
 
     name = CharField()
     subreddits = django_models.ModelMultipleChoiceField(queryset=models.Subreddit.objects.all(),
                                           widget=widgets.CheckboxSelectMultiple)
 
     def __init__(self, *args, **kwargs):
-        if 'instance' in kwargs:
-            self.instance = kwargs['instance']
-            del kwargs['instance']
+        if kwargs.get('instance', None):
+            instance = kwargs['instance']
+            initial = kwargs.setdefault('initial', {})
+            initial['name'] = instance.name
+            initial['subreddits'] = instance.subreddits.all()
         super(GenderForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -77,14 +81,29 @@ class GenderForm(Form):
         self.helper.error_text_inline = False
         self.helper.add_input(Submit('submit', 'Save', css_class='btn btn-lg btn-primary btn-block'))
 
-    def save(self, pk=None):
-        print(pk)
-        name = self.cleaned_data['name']
+    @transaction.atomic
+    def save(self, commit=True):
+        instance = forms.ModelForm.save(self, False)
+        instance.save()
+        instance.name = self.cleaned_data['name']
         subreddits = self.cleaned_data['subreddits']
 
-        #TODO: implement subreddit saving logic
+        self.save_subreddits(instance, subreddits)
 
-        # gender.save()
+        return instance
+
+    def save_subreddits(self, gender, subreddits):
+        models.GenderSubreddit.objects \
+            .filter(gender=gender) \
+            .exclude(subreddit__in=subreddits) \
+            .delete()
+        new_subreddits = filter(lambda s: s not in gender.subreddits.all(), subreddits)
+        for subreddit in new_subreddits:
+            gs = models.GenderSubreddit()
+            gs.gender = gender
+            gs.subreddit = subreddit
+            gs.save()
+        gender.save()
 
 
 class SubredditForm(forms.ModelForm):
