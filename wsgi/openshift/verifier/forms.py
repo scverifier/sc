@@ -1,5 +1,3 @@
-import traceback
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms as forms
@@ -14,16 +12,21 @@ from praw import Reddit
 import verifier.models as models
 
 
+class DefaultFormHelper(FormHelper):
+    def __init__(self, submit_text, *args, **kwargs):
+        super(DefaultFormHelper, self).__init__(*args, **kwargs)
+        self.form_class = 'form-standard'
+        self.error_text_inline = False
+        self.add_input(Submit('submit', submit_text, css_class='btn btn-lg btn-primary btn-block'))
+
+
 class LoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=widgets.PasswordInput)
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'form-standard'
-        self.helper.error_text_inline = False
-        self.helper.add_input(Submit('submit', 'Log in', css_class='btn btn-lg btn-primary btn-block'))
+        self.helper = DefaultFormHelper('Log in')
 
     def is_valid(self):
         result = super(LoginForm, self).is_valid()
@@ -76,10 +79,7 @@ class GenderForm(django_models.ModelForm):
             initial['subreddits'] = instance.subreddits.all()
         super(GenderForm, self).__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        self.helper.form_class = 'form-standard'
-        self.helper.error_text_inline = False
-        self.helper.add_input(Submit('submit', 'Save', css_class='btn btn-lg btn-primary btn-block'))
+        self.helper = DefaultFormHelper('Save')
 
     @transaction.atomic
     def save(self, commit=True):
@@ -109,10 +109,7 @@ class GenderForm(django_models.ModelForm):
 class SubredditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
 
-        self.helper = FormHelper()
-        self.helper.form_class = 'form-standard'
-        self.helper.error_text_inline = False
-        self.helper.add_input(Submit('submit', 'Save', css_class='btn btn-lg btn-primary btn-block'))
+        self.helper = DefaultFormHelper('Save')
         super(SubredditForm, self).__init__(*args, **kwargs)
 
     class Meta:
