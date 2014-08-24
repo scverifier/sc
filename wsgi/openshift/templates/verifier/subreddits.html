@@ -11,21 +11,21 @@
 
 {% block body %}
 
-    <div class="panel">
-        <h2>Subreddits
-            <a href="/data/subreddits/new" class="btn btn-success">Add</a>
-        </h2>
-        <div class="panel-body">
-            <ul class="list-group">
-                {% for subreddit in object_list %}
-                    <li class="list-group-item">
-                        {{ subreddit.name }}
-                        <a href="/data/subreddits/{{ subreddit.id }}" class="btn">Edit</a>
-{#                        <a href="#" class="btn" disabled>View Subreddits</a>#}
-                        <a href="#" class="btn btn-danger" disabled>Delete</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+
+    <h2>Subreddits
+        <a href="/data/subreddits/new" class="btn btn-success">Add</a>
+    </h2>
+    <div class="panel-body">
+        <ul class="list-group">
+            {% for subreddit in object_list %}
+                <li class="list-group-item">
+                    {{ subreddit.name }}
+                    <a href="/data/subreddits/{{ subreddit.id }}" class="btn">Edit</a>
+                    {#                        <a href="#" class="btn" disabled>View Subreddits</a>#}
+                    <a href="#" class="btn btn-danger" disabled>Delete</a>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
+
 {% endblock %}
