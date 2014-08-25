@@ -2,6 +2,7 @@ import django
 from django.conf import settings
 
 # Create your views here.
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden, Http404
@@ -21,6 +22,12 @@ class LoginRequiredMixin(object):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class StaffRequiredMixin(object):
+    @method_decorator(staff_member_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(StaffRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class LoginView(FormView):
@@ -102,14 +109,24 @@ class SubredditEditView(LoginRequiredMixin, UpdateView):
             raise Http404
 
 
-class CredentialsView(LoginRequiredMixin, UpdateView):
+class CredentialsView(StaffRequiredMixin, UpdateView):
     model = models.RedditCredentials
     template_name = 'verifier/credentials.html'
-    success_url = '/'
+    success_url = '/data/credentials'
     form_class = verifier_forms.CredentialsForm
 
     def get_object(self, queryset=None):
-        user = self.request.user
-        credentials, created = models.RedditCredentials.\
-            objects.get_or_create(user=user)
-        return credentials
+        if not 'pk' in self.kwargs:
+            return None
+        try:
+            return models.RedditCredentials.objects.get(pk=self.kwargs['pk'])
+        except models.RedditCredentials.DoesNotExist:
+            raise Http404
+
+
+class CredentialsListView(StaffRequiredMixin, ListView):
+    model = models.RedditCredentials
+    template_name = 'verifier/credentials_list.html'
+
+    def get_queryset(self):
+        return models.RedditCredentials.objects.all()

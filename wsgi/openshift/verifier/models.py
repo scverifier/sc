@@ -6,8 +6,17 @@ from django.db.models.base import Model
 import django.db.models as models
 
 
+class RedditCredentials(Model):
+    reddit_username = models.CharField(max_length=256, blank=True)
+    reddit_password = models.CharField(max_length=256, blank=True)
+
+    def __str__(self):
+        return self.reddit_username
+
+
 class Subreddit(Model):
     name = models.CharField(max_length=128)
+    credentials = models.ForeignKey(RedditCredentials)
 
     def __str__(self):
         return self.name
@@ -36,9 +45,3 @@ class Verification(Model):
     gender = models.ForeignKey(Gender)
     verified_by = models.ForeignKey(User)
     verified_on = models.DateTimeField(auto_now=True)
-
-
-class RedditCredentials(Model):
-    user = models.OneToOneField(User)
-    reddit_username = models.CharField(max_length=256, blank=True)
-    reddit_password = models.CharField(max_length=256, blank=True)

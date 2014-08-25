@@ -153,6 +153,7 @@ class SubredditForm(forms.ModelForm):
         model = models.Subreddit
         fields = [
             'name',
+            'credentials',
         ]
 
     def __init__(self, *args, **kwargs):
