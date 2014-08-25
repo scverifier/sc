@@ -33,8 +33,11 @@ class Gender(Model):
 class GenderSubreddit(Model):
     gender = models.ForeignKey(Gender)
     subreddit = models.ForeignKey(Subreddit)
-    flair_css = models.CharField(max_length=128, null=True)
-    flair_text = models.CharField(max_length=128, null=True)
+    flair_css = models.CharField(max_length=128, null=True, blank=True)
+    flair_text = models.CharField(max_length=128, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('gender', 'subreddit')
 
     def __str__(self):
         return '{0} - {1}'.format(self.gender, self.subreddit)
