@@ -12,12 +12,13 @@ checkuserHandler = (data, status, xhr) ->
   showCheckUserAlert(data.exists)
 
 showCheckUserAlert = (userExists) ->
+  username_input = $('#id_username').parent()
   if userExists
     alertbox = $('#spAlertUserExists')
-    $('#id_username').parent().addClass('has-success')
+    username_input.addClass('has-success')
   else
-    control = $('#spAlertUserNotExists')
-    $('#id_username').parent().addClass('has-error')
+    alertbox = $('#spAlertUserNotExists')
+    username_input.addClass('has-error')
   alertbox.fadeIn(->
     setTimeout((=>alertbox.fadeOut()), delay=1000)
   )
@@ -32,6 +33,11 @@ usernameInputChanged = () ->
   $('#id_username').parent().removeClass('has-error').removeClass('has-success')
   $('#divAlertsContainer').children().hide()
 
+formInputChanged = () ->
+  console.log('Form input changed')
+
+isFormValid = () ->
+  true
 
 $(document).ready () ->
   console.log 'Document loaded'
@@ -39,3 +45,4 @@ $(document).ready () ->
   $('#id_username').on('input', usernameInputChanged)
   $('#divAlertsContainer').children().hide()
   usernameInputChanged()
+  $('#verificationForm :input').on('input', formInputChanged)

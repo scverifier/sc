@@ -48,6 +48,7 @@ class VerificationForm(Form):
         super(VerificationForm, self).__init__(*args, **kwargs)
 
         self.helper = DefaultFormHelper()
+        self.helper.form_id = 'verificationForm'
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -76,6 +77,13 @@ class VerificationForm(Form):
                 css_class='row'
             ),
             'gender',
+            StrictButton(
+                'Verify',
+                id='btnVerify',
+                data_loading_text='Verifying',
+                css_class='btn-lg btn-success',
+                disabled='disabled',
+            ),
         )
         choices = [(g.id, g) for g in models.Gender.objects.all()]
         self.fields['gender'].choices = choices
