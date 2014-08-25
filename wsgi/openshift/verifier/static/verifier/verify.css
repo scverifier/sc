@@ -3,8 +3,10 @@
 /*}*/
 
 .usercheck_alert {
-    /*display: block;*/
-    margin-top: auto;
     display: inline-block;
+    height: 100%;
     vertical-align: middle;
+    padding: 12px;
+    margin-top: auto;
+    margin-bottom: auto;
 }
