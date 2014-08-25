@@ -29,7 +29,8 @@ class LoginForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        self.helper = DefaultFormHelper('Log in')
+        self.helper = DefaultFormHelper()
+        self.helper.add_input(Submit('login', 'Log in', css_class='btn btn-success btn-block'))
 
     def is_valid(self):
         result = super(LoginForm, self).is_valid()
@@ -149,7 +150,8 @@ class GenderForm(django_models.ModelForm):
 
 class SubredditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        self.helper = DefaultFormHelper('Save')
+        self.helper = DefaultFormHelper()
+        self.helper.add_input(Submit('save', 'Save', css_class='btn btn-success'))
         super(SubredditForm, self).__init__(*args, **kwargs)
 
     class Meta:
