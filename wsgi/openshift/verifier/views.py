@@ -50,10 +50,10 @@ class VerificationView(LoginRequiredMixin, FormView):
     template_name = "verifier/verify.html"
     success_url = '/'
 
-    def form_valid(self, form):
-        #TODO: implement verification
-        form.verify(self.request.user)
-        return super(VerificationView, self).form_valid(form)
+    def get_form(self, form_class):
+        form = super(VerificationView, self).get_form(form_class)
+        form.current_user = self.request.user
+        return form
 
 
 class UserView(APIView):

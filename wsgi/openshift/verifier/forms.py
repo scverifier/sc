@@ -8,9 +8,7 @@ from django.forms.fields import CharField, ChoiceField
 from django.forms.forms import Form
 import django.forms.models as django_models
 import django.forms.widgets as widgets
-from praw import Reddit
 
-import settings
 from verifier import verification
 
 import verifier.models as models
@@ -46,6 +44,8 @@ class LoginForm(forms.Form):
 class VerificationForm(Form):
     username = CharField()
     gender = ChoiceField(widget=widgets.RadioSelect)
+
+    current_user = None
 
     def __init__(self, *args, **kwargs):
         super(VerificationForm, self).__init__(*args, **kwargs)
@@ -93,11 +93,21 @@ class VerificationForm(Form):
         choices = [(g.id, g) for g in models.Gender.objects.all()]
         self.fields['gender'].choices = choices
 
-    def verify(self, current_user):
+    def is_valid(self):
+        is_valid = super(VerificationForm, self).is_valid()
+        if not is_valid:
+            return False
+
         gender_id = self.cleaned_data['gender']
 
         gender = models.Gender.objects.get(pk=gender_id)
         username = self.cleaned_data['username']
+
+        if not 'username' in self.errors:
+            self.errors['username'] = []
+
+        errors = self.errors['username']
+        failed_subreddits = []
 
         #TODO: add verification failure, result logging and display
         for gs in gender.gendersubreddit_set.all():
@@ -105,17 +115,50 @@ class VerificationForm(Form):
             moderator_password = gs.subreddit.credentials.reddit_password
             flair_text = gs.flair_text
             flair_css = gs.flair_css
-            verification.verify(moderator_username,
-                                moderator_password,
-                                username,
-                                gs.subreddit.name,
-                                flair_text,
-                                flair_css)
+            try:
+                failed_subreddits.append(gs.subreddit.name)
+
+                verification.verify(moderator_username,
+                                    moderator_password,
+                                    username,
+                                    gs.subreddit.name,
+                                    flair_text,
+                                    flair_css)
+
+                failed_subreddits.remove(gs.subreddit.name)
+            except verification.InvalidLoginException:
+                errors.append(u'Failed to login moderator /u/{0}'
+                              .format(moderator_username))
+            except verification.ModeratorRequiredException:
+                errors.append(u'Subreddit {0} does not exist or moderator {1} does not '
+                              u'have contributor or flair permissions on it'
+                              .format(gs.subreddit.name, moderator_username))
+            except verification.RateLimitExceededException:
+                errors.append(u'Too many unsuccessful attempts to log in moderator /u/{0}; '
+                              u'please try again later.'
+                              .format(moderator_username))
+            except verification.InvalidCSSException:
+                errors.append(u'Bad flair CSS {0} for subreddit {1}.'
+                              .format(flair_css, gs.subreddit.name))
+            except verification.InvalidUserException:
+                errors.append(u'User {0} does not exist.'
+                              .format(username))
+            except verification.RedditAPIException as e:
+                errors.append(u'Error when verifying user for subreddit {0} '
+                              u'by moderator {1}: {2}'
+                              .format(gs.subreddit.name, moderator_username, e))
+        if failed_subreddits:
+            failed_subreddits_str = ', '.join(failed_subreddits)
+            errors.append(u'Failed to process user in the following subreddits: {0}.'.format(failed_subreddits_str))
+            result = False
+        else:
+            result = True
         v = models.Verification()
         v.username = username
         v.gender = gender
-        v.verified_by = current_user
+        v.verified_by = self.current_user
         v.save()
+        return result
 
 
 
