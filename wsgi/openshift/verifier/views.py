@@ -130,17 +130,22 @@ class GenderSubredditsView(LoginRequiredMixin, FormView):
     template_name = 'verifier/gender_subreddits.html'
     success_url = '/data/genders'
     _subreddits = None
+    _gender = None
+
+    @property
+    def gender(self):
+        if self._gender:
+            return self._gender
+        pk = self.kwargs['pk']
+        try:
+            self._gender = models.Gender.objects.get(pk=pk)
+        except models.Gender.DoesNotExist:
+            raise Http404
+        return self._gender
 
     @property
     def subreddits(self):
-        if self._subreddits:
-            return self._subreddits
-        pk = self.kwargs['pk']
-        try:
-            gender = models.Gender.objects.get(pk=pk)
-        except models.Gender.DoesNotExist:
-            raise Http404
-        self._subreddits = gender.subreddits.all()
+        self._subreddits = self.gender.subreddits.all()
         return self._subreddits
     
     def get_form(self, form_class):
@@ -150,7 +155,18 @@ class GenderSubredditsView(LoginRequiredMixin, FormView):
         return form
 
     def get_initial(self):
-        return super(GenderSubredditsView, self).get_initial()
+        initial = super(GenderSubredditsView, self).get_initial()
+        for subreddit_gender in self.gender.gendersubreddit_set.all():
+            text_field_name = verifier_forms.\
+                GenderSubredditsForm.\
+                get_text_field_name(subreddit_gender.subreddit.id)
+            css_field_name = verifier_forms.\
+                GenderSubredditsForm.\
+                get_css_field_name(subreddit_gender.subreddit.id)
+
+            initial[text_field_name] = subreddit_gender.flair_text
+            initial[css_field_name] = subreddit_gender.flair_css
+        return initial
 
 
 class CredentialsListView(StaffRequiredMixin, ListView):
