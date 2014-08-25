@@ -11,6 +11,7 @@ import django.forms.widgets as widgets
 from praw import Reddit
 
 import settings
+from verifier import verification
 
 import verifier.models as models
 
@@ -91,6 +92,31 @@ class VerificationForm(Form):
         )
         choices = [(g.id, g) for g in models.Gender.objects.all()]
         self.fields['gender'].choices = choices
+
+    def verify(self, current_user):
+        gender_id = self.cleaned_data['gender']
+
+        gender = models.Gender.objects.get(pk=gender_id)
+        username = self.cleaned_data['username']
+
+        #TODO: add verification failure, result logging and display
+        for gs in gender.gendersubreddit_set.all():
+            moderator_username = gs.subreddit.credentials.reddit_username
+            moderator_password = gs.subreddit.credentials.reddit_password
+            flair_text = gs.flair_text
+            flair_css = gs.flair_css
+            verification.verify(moderator_username,
+                                moderator_password,
+                                username,
+                                gs.subreddit.name,
+                                flair_text,
+                                flair_css)
+        v = models.Verification()
+        v.username = username
+        v.gender = gender
+        v.verified_by = current_user
+        v.save()
+
 
 
 class GenderForm(django_models.ModelForm):

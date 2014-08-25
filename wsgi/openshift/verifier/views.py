@@ -52,7 +52,7 @@ class VerificationView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         #TODO: implement verification
-        # form.verify()
+        form.verify(self.request.user)
         return super(VerificationView, self).form_valid(form)
 
 
