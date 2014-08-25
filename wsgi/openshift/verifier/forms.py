@@ -10,6 +10,8 @@ import django.forms.models as django_models
 import django.forms.widgets as widgets
 from praw import Reddit
 
+import settings
+
 import verifier.models as models
 
 
@@ -88,20 +90,6 @@ class VerificationForm(Form):
         )
         choices = [(g.id, g) for g in models.Gender.objects.all()]
         self.fields['gender'].choices = choices
-
-    def verify(self):
-        username = self.cleaned_data['username']
-        gender = self.cleaned_data['gender']
-        print(username, gender)
-        api = Reddit(user_agent='ssutekh/verifier_0.1a')
-        api.login('ssutekh', 'mastercard1')
-        print('Logged in')
-        subreddit = api.get_subreddit('ssutekh_test')
-        print('Fetched subreddit')
-        subreddit.remove_contributor(username)
-        print('Contributor added')
-        api.set_flair(subreddit, username, gender)
-        print('Flair set')
 
 
 class GenderForm(django_models.ModelForm):

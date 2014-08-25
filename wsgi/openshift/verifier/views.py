@@ -43,7 +43,8 @@ class VerificationView(LoginRequiredMixin, FormView):
     success_url = '/'
 
     def form_valid(self, form):
-        form.verify()
+        #TODO: implement verification
+        # form.verify()
         return super(VerificationView, self).form_valid(form)
 
 
