@@ -50,10 +50,18 @@
   };
 
   formInputChanged = function() {
-    return console.log('Form input changed');
+    return $('#submit-id-verify').prop('disabled', !isFormValid());
   };
 
   isFormValid = function() {
+    if (!$('#id_username').val()) {
+      return false;
+    }
+    if ($.grep($('[name=gender]'), function(item) {
+      return $(item).is(':checked');
+    }).length === 0) {
+      return false;
+    }
     return true;
   };
 
@@ -63,7 +71,8 @@
     $('#id_username').on('input', usernameInputChanged);
     $('#divAlertsContainer').children().hide();
     usernameInputChanged();
-    return $('#verificationForm :input').on('input', formInputChanged);
+    $('#verificationForm :input').on('input', formInputChanged);
+    return $('#verificationForm :input[type=radio]').change(formInputChanged);
   });
 
 }).call(this);

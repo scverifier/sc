@@ -77,7 +77,8 @@ class VerificationForm(Form):
                 css_class='row'
             ),
             'gender',
-            StrictButton(
+            Submit(
+                'verify',
                 'Verify',
                 id='btnVerify',
                 data_loading_text='Verifying',

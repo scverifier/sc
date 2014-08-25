@@ -34,10 +34,15 @@ usernameInputChanged = () ->
   $('#divAlertsContainer').children().hide()
 
 formInputChanged = () ->
-  console.log('Form input changed')
+  $('#submit-id-verify').prop('disabled', not isFormValid())
 
 isFormValid = () ->
-  true
+  if not $('#id_username').val()
+    return false
+  # no checked radio buttons
+  if $.grep($('[name=gender]'), (item) -> $(item).is(':checked')).length == 0
+    return false
+  return true
 
 $(document).ready () ->
   console.log 'Document loaded'
@@ -46,3 +51,4 @@ $(document).ready () ->
   $('#divAlertsContainer').children().hide()
   usernameInputChanged()
   $('#verificationForm :input').on('input', formInputChanged)
+  $('#verificationForm :input[type=radio]').change(formInputChanged)
