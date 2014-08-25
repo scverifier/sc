@@ -1,6 +1,6 @@
 from crispy_forms.bootstrap import FormActions, FieldWithButtons, StrictButton, Alert, PrependedText
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, Button, Div, Column, HTML
+from crispy_forms.layout import Submit, Layout, Field, Button, Div, Column, HTML, Fieldset, Hidden
 from django import forms as forms
 from django.contrib.auth import authenticate
 from django.db import transaction
@@ -160,6 +160,40 @@ class SubredditForm(forms.ModelForm):
         super(SubredditForm, self).__init__(*args, **kwargs)
         self.helper = DefaultFormHelper()
         self.helper.add_input(Submit('save', 'Save', css_class='btn btn-success'))
+
+
+class GenderSubredditsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(GenderSubredditsForm, self).__init__(*args, **kwargs)
+        self.helper = DefaultFormHelper()
+        self.helper.form_show_labels = False
+
+    def init_subreddits_list(self, subreddits):
+        layout = Layout()
+        self.helper.layout = layout
+
+        for subreddit in subreddits:
+            flair_css_field_id = self.get_css_field_name(subreddit.id)
+            flair_text_field_id = self.get_text_field_name(subreddit.id)
+            self.fields[flair_css_field_id] = CharField()
+            self.fields[flair_text_field_id] = CharField()
+            fieldset = Fieldset(
+                '/r/{0}:'.format(subreddit.name),
+                Field(flair_css_field_id, placeholder='Flair CSS'),
+                Field(flair_text_field_id, placeholder='Flair text'),
+            )
+            layout.append(fieldset)
+
+    def is_valid(self):
+        return super(GenderSubredditsForm, self).is_valid()
+
+    @staticmethod
+    def get_text_field_name(subreddit_id):
+        return 'subreddit_{0}.flair_text'.format(subreddit_id)
+
+    @staticmethod
+    def get_css_field_name(subreddit_id):
+        return 'subreddit_{0}_flair_css'.format(subreddit_id)
 
 
 class CredentialsForm(forms.ModelForm):

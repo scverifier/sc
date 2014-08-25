@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden, Http404
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView
+from django.views.generic.base import View
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from praw import Reddit
@@ -122,6 +123,34 @@ class CredentialsView(StaffRequiredMixin, UpdateView):
             return models.RedditCredentials.objects.get(pk=self.kwargs['pk'])
         except models.RedditCredentials.DoesNotExist:
             raise Http404
+
+
+class GenderSubredditsView(LoginRequiredMixin, FormView):
+    form_class = verifier_forms.GenderSubredditsForm
+    template_name = 'verifier/gender_subreddits.html'
+    success_url = '/data/genders'
+    _subreddits = None
+
+    @property
+    def subreddits(self):
+        if self._subreddits:
+            return self._subreddits
+        pk = self.kwargs['pk']
+        try:
+            gender = models.Gender.objects.get(pk=pk)
+        except models.Gender.DoesNotExist:
+            raise Http404
+        self._subreddits = gender.subreddits.all()
+        return self._subreddits
+    
+    def get_form(self, form_class):
+        form = super(GenderSubredditsView, self).get_form(form_class)
+        subreddits = self.subreddits
+        form.init_subreddits_list(subreddits)
+        return form
+
+    def get_initial(self):
+        return super(GenderSubredditsView, self).get_initial()
 
 
 class CredentialsListView(StaffRequiredMixin, ListView):

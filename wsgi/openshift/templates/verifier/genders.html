@@ -21,7 +21,7 @@
                 <li class="list-group-item">
                     {{ gender.name }}
                     <a href="/data/genders/{{ gender.id }}" class="btn">Edit</a>
-                    <a href="#" class="btn" disabled>Manage Subreddits</a>
+                    <a href="/data/genders/{{ gender.id }}/subreddits" class="btn">Manage Subreddits</a>
                     <a href="#" class="btn btn-danger" disabled>Delete</a>
                 </li>
             {% endfor %}
