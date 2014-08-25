@@ -1,4 +1,4 @@
-from crispy_forms.bootstrap import FormActions, FieldWithButtons, StrictButton
+from crispy_forms.bootstrap import FormActions, FieldWithButtons, StrictButton, Alert, PrependedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Button, Div, Column, HTML
 from django import forms as forms
@@ -51,12 +51,20 @@ class VerificationForm(Form):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    FieldWithButtons('username',
-                                     StrictButton('Check',
-                                                  id='btnUsernameCheck',
-                                                  data_loading_text='Checking'),
-                                     css_class='input-lg'),
-                    css_class='col-xs-6'
+                    PrependedText(
+                        'username',
+                        '/u/',
+                        placeholder='username',
+                        css_class='input-lg',
+                    ),
+                    css_class='col-xs-4'
+                ),
+                Div(
+                    StrictButton('Check',
+                                 id='btnUsernameCheck',
+                                 data_loading_text='Checking',
+                                 css_class='btn-lg btn-info'),
+                    css_class='col-xs-2',
                 ),
                 Div(
                     HTML('''<span id="spAlertUserExists" class="alert alert-success usercheck_alert">User exists</span>'''),
