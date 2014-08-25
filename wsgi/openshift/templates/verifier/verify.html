@@ -13,4 +13,7 @@ Verification
 {% load crispy_forms_tags %}
 {% block body %}
     {% crispy form %}
+    {% if verification_success %}
+        <div id="verificationSuccessAlert" class="alert alert-success" role="alert">User {{ verified_user }} successfully verified!</div>
+    {% endif %}
 {% endblock %}

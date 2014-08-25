@@ -44,6 +44,9 @@ isFormValid = () ->
     return false
   return true
 
+formSubmit = () ->
+  $('#verificationForm :input[type=submit]').button('loading')
+
 $(document).ready () ->
   console.log 'Document loaded'
   $('#btnUsernameCheck').click(checkUser)
@@ -52,3 +55,8 @@ $(document).ready () ->
   usernameInputChanged()
   $('#verificationForm :input').on('input', formInputChanged)
   $('#verificationForm :input[type=radio]').change(formInputChanged)
+  $('#verificationForm').submit(formSubmit)
+
+  window.setTimeout((() ->
+    $('#verificationSuccessAlert').fadeOut())
+  , 2000)

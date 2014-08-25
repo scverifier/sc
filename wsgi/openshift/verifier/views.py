@@ -55,6 +55,14 @@ class VerificationView(LoginRequiredMixin, FormView):
         form.current_user = self.request.user
         return form
 
+    def form_valid(self, form):
+        context = self.get_context_data(form=verifier_forms.VerificationForm())
+        print(context['form'])
+        context['verification_success'] = True
+        context['verified_user'] = form.cleaned_data['username']
+        return self.render_to_response(context)
+
+
 
 class UserView(APIView):
 
