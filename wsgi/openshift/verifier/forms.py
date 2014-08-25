@@ -98,6 +98,9 @@ class VerificationForm(Form):
 
         gender = models.Gender.objects.get(pk=gender_id)
         username = self.cleaned_data['username']
+        if not username in settings.TEST_USERNAMES:
+            print('Non-test username %s, canceling verification.' % username)
+            return
 
         #TODO: add verification failure, result logging and display
         for gs in gender.gendersubreddit_set.all():
