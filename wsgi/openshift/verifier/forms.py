@@ -61,6 +61,7 @@ class VerificationForm(Form):
                         '/u/',
                         placeholder='username',
                         css_class='input-lg',
+                        autofocus='true',
                     ),
                     css_class='col-xs-4'
                 ),
