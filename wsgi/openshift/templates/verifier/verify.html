@@ -10,14 +10,27 @@ Verification
     <script src="{% static 'verifier/verify.js' %}"></script>
 {% endblock %}
 
+{% load crispy_forms_tags %}
 {% block body %}
-    <h2 class="form-verify-heading">Verify this user</h2>
-    <form action="" method="POST" class="form-verify"> {% csrf_token %}
-        {{ form.username }} <input type="button" id="btnCheckUser" value="Check User" />
-        <img src="{% static 'verifier/ajax-loader.gif' %}" alt="Loading..." id="imgCheckStatusLoading" style="display: None"/>
-        <span id="spUserExists" style="display: none" class="green statusSpan">User exists</span>
-        <span id="spUserNotExists" style="display: none" class="red statusSpan">User doesn't exist :(</span>
-        {{ form.gender }}
-        <input type="submit" value="Verify"/>
-    </form>
+    {% crispy form %}
+
+    <img id="imgSpinnerTemplate" src="{% static 'verifier/ajax-loader.gif' %}" alt="Loading..." style="display: none"/>
+
+    <span class="alert alert-success">User exists</span>
+
+{#    <h2 class="form-verify-heading">Verify this user</h2>#}
+{#    <form action="" method="POST" class="form-standard"> {% csrf_token %}#}
+{#        <div class="input-group">#}
+{#            <input type="text" class="form-control">#}
+{#            <span class="input-group-btn">#}
+{#                <button class="btn btn-default" type="button">Check</button>#}
+{#            </span>#}
+{#        </div>#}
+{#        {{ form.username }} <input type="button" id="btnCheckUser" value="Check User"/>#}
+{#        <img src="{% static 'verifier/ajax-loader.gif' %}" alt="Loading..." id="imgCheckStatusLoading" style="display: None"/>#}
+{#        <span id="spUserExists" style="display: none" class="green statusSpan">User exists</span>#}
+{#        <span id="spUserNotExists" style="display: none" class="red statusSpan">User doesn't exist :(</span>#}
+{#        {{ form.gender }}#}
+{#        <input type="submit" value="Verify"/>#}
+{#    </form>#}
 {% endblock %}

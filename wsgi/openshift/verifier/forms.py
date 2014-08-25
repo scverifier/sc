@@ -1,5 +1,6 @@
+from crispy_forms.bootstrap import FormActions, FieldWithButtons, StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit, Layout, Field, Button, Div, Column, HTML
 from django import forms as forms
 from django.contrib.auth import authenticate
 from django.db import transaction
@@ -13,11 +14,11 @@ import verifier.models as models
 
 
 class DefaultFormHelper(FormHelper):
-    def __init__(self, submit_text, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(DefaultFormHelper, self).__init__(*args, **kwargs)
         self.form_class = 'form-standard'
+        self.form_show_labels = False
         self.error_text_inline = False
-        self.add_input(Submit('submit', submit_text, css_class='btn btn-lg btn-primary btn-block'))
 
 
 class LoginForm(forms.Form):
@@ -41,12 +42,35 @@ class LoginForm(forms.Form):
 
 class VerificationForm(Form):
     username = CharField()
-    # gender = ChoiceField(widget=RadioSelect)
+    gender = ChoiceField(widget=widgets.RadioSelect)
 
     def __init__(self, *args, **kwargs):
         super(VerificationForm, self).__init__(*args, **kwargs)
+
+        self.helper = DefaultFormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    FieldWithButtons('username',
+                                     StrictButton('Check',
+                                                  id='btnUsernameCheck',
+                                                  data_loading_text='Checking'),
+                                     css_class='input-lg'),
+                    css_class='col-xs-6'
+                ),
+                Div(
+                    HTML('''<span id="spAlertUserExists" class="alert alert-success usercheck_alert">User exists</span>'''),
+                    HTML('''<span id="spAlertUserNotExists" class="alert alert-danger usercheck_alert">User doesn't exist</span>'''),
+                    css_class='col-l-4',
+                    id='divAlertsContainer',
+                ),
+
+                css_class='row'
+            ),
+            'gender',
+        )
         choices = [(g.id, g) for g in models.Gender.objects.all()]
-        self.fields['gender'] = ChoiceField(widget=widgets.RadioSelect, choices=choices)
+        self.fields['gender'].choices = choices
 
     def verify(self):
         username = self.cleaned_data['username']
@@ -66,10 +90,14 @@ class VerificationForm(Form):
 class GenderForm(django_models.ModelForm):
     class Meta:
         model = models.Gender
+        fields = (
+            'name',
+            'subreddits',
+        )
 
     name = CharField()
     subreddits = django_models.ModelMultipleChoiceField(queryset=models.Subreddit.objects.all(),
-                                          widget=widgets.CheckboxSelectMultiple)
+                                                        widget=widgets.CheckboxSelectMultiple)
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('instance', None):
@@ -79,7 +107,15 @@ class GenderForm(django_models.ModelForm):
             initial['subreddits'] = instance.subreddits.all()
         super(GenderForm, self).__init__(*args, **kwargs)
 
-        self.helper = DefaultFormHelper('Save')
+        self.helper = DefaultFormHelper()
+        self.helper.layout = Layout(
+            Field('name'),
+            Field('subreddits', style='padding-left: 20px'),
+            FormActions(
+                Submit('save', 'Save', css_class='btn-primary'),
+                Button('cancel', 'Cancel'),
+            )
+        )
 
     @transaction.atomic
     def save(self, commit=True):
@@ -108,7 +144,6 @@ class GenderForm(django_models.ModelForm):
 
 class SubredditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-
         self.helper = DefaultFormHelper('Save')
         super(SubredditForm, self).__init__(*args, **kwargs)
 
@@ -116,4 +151,4 @@ class SubredditForm(forms.ModelForm):
         model = models.Subreddit
         fields = [
             'name',
-            ]
+        ]

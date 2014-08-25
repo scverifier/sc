@@ -1,22 +1,39 @@
 checkUser = () ->
-  $('.statusSpan').hide()
-  $('#imgCheckStatusLoading').show()
-  $('#btnCheckUser').attr('readonly', true)
+  $('#divAlertsContainer').children().hide()
+  $('#btnUsernameCheck').button('loading')
   username = $('#id_username').val()
-  console.log username
   $.ajax("/api/user/#{username}/?format=json",
     {
       success: checkuserHandler
     })
 
 checkuserHandler = (data, status, xhr) ->
-  $('#imgCheckStatusLoading').hide()
-  if data.exists
-    $('#spUserExists').show()
+  $('#btnUsernameCheck').button('reset')
+  showCheckUserAlert(data.exists)
+
+showCheckUserAlert = (userExists) ->
+  if userExists
+    control = $('#spAlertUserExists')
+    $('#id_username').parent().addClass('has-success')
   else
-    $('#spUserNotExists').show()
-  $('#btnCheckUser').attr('readonly', false)
+    control = $('#spAlertUserNotExists')
+    $('#id_username').parent().addClass('has-error')
+  control.fadeIn()
+
+usernameInputChanged = () ->
+  val = $('#id_username').val()
+  if val
+    disabled = false
+  else
+    disabled = true
+  $('#btnUsernameCheck').prop('disabled', disabled)
+  $('#id_username').parent().removeClass('has-error').removeClass('has-success')
+  $('#divAlertsContainer').children().hide()
+
 
 $(document).ready () ->
   console.log 'Document loaded'
-  $('#btnCheckUser').click(checkUser)
+  $('#btnUsernameCheck').click(checkUser)
+  $('#id_username').on('input', usernameInputChanged)
+  $('#divAlertsContainer').children().hide()
+  usernameInputChanged()

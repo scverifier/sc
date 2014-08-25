@@ -135,4 +135,4 @@ LOGIN_URL = '/login'
 
 USER_AGENT = 'ssutekh/verifier_0.1a'
 
-CRISPY_TEMPLATE_PACK = 'bootstrap'
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
