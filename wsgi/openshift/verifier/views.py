@@ -100,3 +100,16 @@ class SubredditEditView(LoginRequiredMixin, UpdateView):
             return models.Subreddit.objects.get(pk=self.kwargs['pk'])
         except models.Subreddit.DoesNotExist:
             raise Http404
+
+
+class CredentialsView(LoginRequiredMixin, UpdateView):
+    model = models.RedditCredentials
+    template_name = 'verifier/credentials.html'
+    success_url = '/'
+    form_class = verifier_forms.CredentialsForm
+
+    def get_object(self, queryset=None):
+        user = self.request.user
+        credentials, created = models.RedditCredentials.\
+            objects.get_or_create(user=user)
+        return credentials

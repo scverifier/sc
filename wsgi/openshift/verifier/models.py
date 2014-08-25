@@ -36,3 +36,9 @@ class Verification(Model):
     gender = models.ForeignKey(Gender)
     verified_by = models.ForeignKey(User)
     verified_on = models.DateTimeField(auto_now=True)
+
+
+class RedditCredentials(Model):
+    user = models.OneToOneField(User)
+    reddit_username = models.CharField(max_length=256, blank=True)
+    reddit_password = models.CharField(max_length=256, blank=True)

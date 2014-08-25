@@ -19,7 +19,6 @@ class DefaultFormHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(DefaultFormHelper, self).__init__(*args, **kwargs)
         self.form_class = 'form-standard'
-        self.form_show_labels = False
         self.error_text_inline = False
 
 
@@ -51,6 +50,7 @@ class VerificationForm(Form):
         super(VerificationForm, self).__init__(*args, **kwargs)
 
         self.helper = DefaultFormHelper()
+        self.helper.form_show_labels = False
         self.helper.form_id = 'verificationForm'
         self.helper.layout = Layout(
             Div(
@@ -149,13 +149,37 @@ class GenderForm(django_models.ModelForm):
 
 
 class SubredditForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        self.helper = DefaultFormHelper()
-        self.helper.add_input(Submit('save', 'Save', css_class='btn btn-success'))
-        super(SubredditForm, self).__init__(*args, **kwargs)
-
     class Meta:
         model = models.Subreddit
         fields = [
             'name',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super(SubredditForm, self).__init__(*args, **kwargs)
+        self.helper = DefaultFormHelper()
+        self.helper.add_input(Submit('save', 'Save', css_class='btn btn-success'))
+
+
+class CredentialsForm(forms.ModelForm):
+    reddit_username = CharField()
+    reddit_password = CharField(widget=widgets.PasswordInput)
+
+    class Meta:
+        model = models.RedditCredentials
+        fields = [
+            'reddit_username',
+            'reddit_password',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(CredentialsForm, self).__init__(*args, **kwargs)
+        self.helper = DefaultFormHelper()
+        self.helper.layout = Layout(
+            'reddit_username',
+            'reddit_password',
+            FormActions(
+                Submit('save', 'Save', css_class='btn btn-success'),
+                Button('cancel', 'Cancel', css_class='btn btn-default', disabled='disabled'),
+            ),
+        )
