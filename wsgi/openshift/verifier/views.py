@@ -168,6 +168,10 @@ class GenderSubredditsView(LoginRequiredMixin, FormView):
             initial[css_field_name] = subreddit_gender.flair_css
         return initial
 
+    def form_valid(self, form):
+        form.save(self.gender.gendersubreddit_set.all())
+        return super(GenderSubredditsView, self).form_valid(form)
+
 
 class CredentialsListView(StaffRequiredMixin, ListView):
     model = models.RedditCredentials

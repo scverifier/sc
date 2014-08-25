@@ -175,14 +175,32 @@ class GenderSubredditsForm(forms.Form):
         for subreddit in subreddits:
             flair_css_field_id = self.get_css_field_name(subreddit.id)
             flair_text_field_id = self.get_text_field_name(subreddit.id)
-            self.fields[flair_css_field_id] = CharField()
-            self.fields[flair_text_field_id] = CharField()
+            self.fields[flair_css_field_id] = CharField(required=False)
+            self.fields[flair_text_field_id] = CharField(required=False)
             fieldset = Fieldset(
                 '/r/{0}:'.format(subreddit.name),
                 Field(flair_css_field_id, placeholder='Flair CSS'),
                 Field(flair_text_field_id, placeholder='Flair text'),
             )
             layout.append(fieldset)
+        layout.append(
+            FormActions(
+                Submit('save', 'Save', css_class='btn-primary'),
+                Button('cancel', 'Cancel'),
+            )
+        )
+
+    @transaction.atomic
+    def save(self, gender_subreddits):
+        #TODO: verify that subreddit list hasn't changed between requests
+        for gs in gender_subreddits:
+            css_field_name = self.get_css_field_name(gs.subreddit.id)
+            text_field_name = self.get_text_field_name(gs.subreddit.id)
+            css = self.cleaned_data[css_field_name]
+            text = self.cleaned_data[text_field_name]
+            gs.flair_css = css
+            gs.flair_text = text
+            gs.save()
 
     def is_valid(self):
         return super(GenderSubredditsForm, self).is_valid()
