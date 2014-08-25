@@ -112,6 +112,12 @@ else:
         }
     }
 
+# Logging
+if ON_OPENSHIFT:
+    LOG_PATH = os.path.join(os.environ['OPENSHIFT_DATA_DIR'], 'django.log')
+else:
+    LOG_PATH = os.path.join(BASE_DIR, 'django.log')
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
@@ -136,3 +142,26 @@ LOGIN_URL = '/login'
 USER_AGENT = 'ssutekh/verifier_0.1a'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': LOG_PATH,
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins', 'file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}
