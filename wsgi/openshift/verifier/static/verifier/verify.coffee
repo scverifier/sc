@@ -13,12 +13,14 @@ checkuserHandler = (data, status, xhr) ->
 
 showCheckUserAlert = (userExists) ->
   if userExists
-    control = $('#spAlertUserExists')
+    alertbox = $('#spAlertUserExists')
     $('#id_username').parent().addClass('has-success')
   else
     control = $('#spAlertUserNotExists')
     $('#id_username').parent().addClass('has-error')
-  control.fadeIn()
+  alertbox.fadeIn(->
+    setTimeout((=>alertbox.fadeOut()), delay=1000)
+  )
 
 usernameInputChanged = () ->
   val = $('#id_username').val()

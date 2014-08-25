@@ -18,15 +18,21 @@
   };
 
   showCheckUserAlert = function(userExists) {
-    var control;
+    var alertbox, control;
     if (userExists) {
-      control = $('#spAlertUserExists');
+      alertbox = $('#spAlertUserExists');
       $('#id_username').parent().addClass('has-success');
     } else {
       control = $('#spAlertUserNotExists');
       $('#id_username').parent().addClass('has-error');
     }
-    return control.fadeIn();
+    return alertbox.fadeIn(function() {
+      var delay,
+        _this = this;
+      return setTimeout((function() {
+        return alertbox.fadeOut();
+      }), delay = 1000);
+    });
   };
 
   usernameInputChanged = function() {
