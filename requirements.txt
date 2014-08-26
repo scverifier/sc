@@ -3,3 +3,4 @@ static
 praw
 djangorestframework
 django-crispy-forms
+-e hg+http://bitbucket.org/andrewgodwin/south/#egg=south
