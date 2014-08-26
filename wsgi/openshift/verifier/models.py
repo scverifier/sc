@@ -22,29 +22,29 @@ class Subreddit(Model):
         return self.name
 
 
-class Gender(Model):
+class UserType(Model):
     name = models.CharField(max_length=64)
-    subreddits = models.ManyToManyField(Subreddit, through='GenderSubreddit')
+    subreddits = models.ManyToManyField(Subreddit, through='UserTypeSubreddit')
 
     def __str__(self):
         return self.name
 
 
-class GenderSubreddit(Model):
-    gender = models.ForeignKey(Gender)
+class UserTypeSubreddit(Model):
+    usertype = models.ForeignKey(UserType)
     subreddit = models.ForeignKey(Subreddit)
     flair_css = models.CharField(max_length=128, null=True, blank=True)
     flair_text = models.CharField(max_length=128, null=True, blank=True)
 
     class Meta:
-        unique_together = ('gender', 'subreddit')
+        unique_together = ('usertype', 'subreddit')
 
     def __str__(self):
-        return '{0} - {1}'.format(self.gender, self.subreddit)
+        return '{0} - {1}'.format(self.usertype, self.subreddit)
 
 
 class Verification(Model):
     username = models.CharField(max_length=128)
-    gender = models.ForeignKey(Gender)
+    usertype = models.ForeignKey(UserType)
     verified_by = models.ForeignKey(User)
     verified_on = models.DateTimeField(auto_now=True)

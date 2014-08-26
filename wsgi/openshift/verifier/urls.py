@@ -1,17 +1,17 @@
 from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
-from verifier.models import Gender, Subreddit, RedditCredentials
-from verifier.views import GenderEditView, GenderListView, SubredditEditView, CredentialsView, CredentialsListView, \
-    GenderSubredditsView
+from verifier.models import UserType, Subreddit, RedditCredentials
+from verifier.views import UserTypeEditView, UserTypeListView, SubredditEditView, CredentialsView, CredentialsListView, \
+    UserTypeSubredditsView
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^/genders/new$', GenderEditView.as_view(), name='gender_create'),
-    url(r'^/genders/(?P<pk>\d+)/subreddits', GenderSubredditsView.as_view(), name='gender_subreddits'),
-    url(r'^/genders/(?P<pk>\d+)', GenderEditView.as_view(), name='gender_edit'),
-    url(r'^/genders', login_required(ListView.as_view(
-        model=Gender, template_name='verifier/genders.html')), name='gender_list'),
+    url(r'^/usertypes/new$', UserTypeEditView.as_view(), name='usertype_create'),
+    url(r'^/usertypes/(?P<pk>\d+)/subreddits', UserTypeSubredditsView.as_view(), name='usertype_subreddits'),
+    url(r'^/usertypes/(?P<pk>\d+)', UserTypeEditView.as_view(), name='usertype_edit'),
+    url(r'^/usertypes', login_required(ListView.as_view(
+        model=UserType, template_name='verifier/usertypes.html')), name='usertype_list'),
 
     url(r'^/subreddits/new$', SubredditEditView.as_view(), name='subreddit_create'),
     url(r'^/subreddits/(?P<pk>\d+)', SubredditEditView.as_view(), name='subreddit_edit'),

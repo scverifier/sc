@@ -82,25 +82,25 @@ class UserView(APIView):
         return Response(data)
 
 
-class GenderEditView(LoginRequiredMixin, UpdateView):
-    form_class = verifier_forms.GenderForm
-    model = models.Gender
-    template_name = 'verifier/gender.html'
-    success_url = '/data/genders'
-    gender = None
+class UserTypeEditView(LoginRequiredMixin, UpdateView):
+    form_class = verifier_forms.UserTypeForm
+    model = models.UserType
+    template_name = 'verifier/usertype.html'
+    success_url = '/data/usertypes'
+    usertype = None
 
     def get_object(self, queryset=None):
         if not 'pk' in self.kwargs:
             return None
         try:
-            return models.Gender.objects.get(pk=self.kwargs['pk'])
-        except models.Gender.DoesNotExist:
+            return models.UserType.objects.get(pk=self.kwargs['pk'])
+        except models.UserType.DoesNotExist:
             raise Http404
 
 
-class GenderListView(LoginRequiredMixin, ListView):
-    model = models.Gender
-    template_name = 'verifier/genders.html'
+class UserTypeListView(LoginRequiredMixin, ListView):
+    model = models.UserType
+    template_name = 'verifier/usertypes.html'
 
 
 class SubredditEditView(LoginRequiredMixin, UpdateView):
@@ -133,52 +133,52 @@ class CredentialsView(StaffRequiredMixin, UpdateView):
             raise Http404
 
 
-class GenderSubredditsView(LoginRequiredMixin, FormView):
-    form_class = verifier_forms.GenderSubredditsForm
-    template_name = 'verifier/gender_subreddits.html'
-    success_url = '/data/genders'
+class UserTypeSubredditsView(LoginRequiredMixin, FormView):
+    form_class = verifier_forms.UserTypeSubredditsForm
+    template_name = 'verifier/usertype_subreddits.html'
+    success_url = '/data/usertypes'
     _subreddits = None
-    _gender = None
+    _usertype = None
 
     @property
-    def gender(self):
-        if self._gender:
-            return self._gender
+    def usertype(self):
+        if self._usertype:
+            return self._usertype
         pk = self.kwargs['pk']
         try:
-            self._gender = models.Gender.objects.get(pk=pk)
-        except models.Gender.DoesNotExist:
+            self._usertype = models.UserType.objects.get(pk=pk)
+        except models.UserType.DoesNotExist:
             raise Http404
-        return self._gender
+        return self._usertype
 
     @property
     def subreddits(self):
-        self._subreddits = self.gender.subreddits.all()
+        self._subreddits = self.usertype.subreddits.all()
         return self._subreddits
     
     def get_form(self, form_class):
-        form = super(GenderSubredditsView, self).get_form(form_class)
+        form = super(UserTypeSubredditsView, self).get_form(form_class)
         subreddits = self.subreddits
         form.init_subreddits_list(subreddits)
         return form
 
     def get_initial(self):
-        initial = super(GenderSubredditsView, self).get_initial()
-        for subreddit_gender in self.gender.gendersubreddit_set.all():
+        initial = super(UserTypeSubredditsView, self).get_initial()
+        for usertype_subreddit in self.usertype.usertypesubreddit_set.all():
             text_field_name = verifier_forms.\
-                GenderSubredditsForm.\
-                get_text_field_name(subreddit_gender.subreddit.id)
+                UserTypeSubredditsForm.\
+                get_text_field_name(usertype_subreddit.subreddit.id)
             css_field_name = verifier_forms.\
-                GenderSubredditsForm.\
-                get_css_field_name(subreddit_gender.subreddit.id)
+                UserTypeSubredditsForm.\
+                get_css_field_name(usertype_subreddit.subreddit.id)
 
-            initial[text_field_name] = subreddit_gender.flair_text
-            initial[css_field_name] = subreddit_gender.flair_css
+            initial[text_field_name] = usertype_subreddit.flair_text
+            initial[css_field_name] = usertype_subreddit.flair_css
         return initial
 
     def form_valid(self, form):
-        form.save(self.gender.gendersubreddit_set.all())
-        return super(GenderSubredditsView, self).form_valid(form)
+        form.save(self.usertype.usertypesubreddit_set.all())
+        return super(UserTypeSubredditsView, self).form_valid(form)
 
 
 class CredentialsListView(StaffRequiredMixin, ListView):

@@ -40,7 +40,7 @@ isFormValid = () ->
   if not $('#id_username').val()
     return false
   # no checked radio buttons
-  if $.grep($('[name=gender]'), (item) -> $(item).is(':checked')).length == 0
+  if $.grep($('[name=usertype]'), (item) -> $(item).is(':checked')).length == 0
     return false
   return true
 

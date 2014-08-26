@@ -43,7 +43,7 @@ class LoginForm(forms.Form):
 
 class VerificationForm(Form):
     username = CharField()
-    gender = ChoiceField(widget=widgets.RadioSelect)
+    usertype = ChoiceField(widget=widgets.RadioSelect)
 
     current_user = None
 
@@ -81,7 +81,7 @@ class VerificationForm(Form):
 
                 css_class='row'
             ),
-            'gender',
+            'usertype',
             Submit(
                 'verify',
                 'Verify',
@@ -91,17 +91,17 @@ class VerificationForm(Form):
                 disabled='disabled',
             ),
         )
-        choices = [(g.id, g) for g in models.Gender.objects.all()]
-        self.fields['gender'].choices = choices
+        choices = [(g.id, g) for g in models.UserType.objects.all()]
+        self.fields['usertype'].choices = choices
 
     def is_valid(self):
         is_valid = super(VerificationForm, self).is_valid()
         if not is_valid:
             return False
 
-        gender_id = self.cleaned_data['gender']
+        usertype_id = self.cleaned_data['usertype']
 
-        gender = models.Gender.objects.get(pk=gender_id)
+        usertype = models.UserType.objects.get(pk=usertype_id)
         username = self.cleaned_data['username']
 
         if not 'username' in self.errors:
@@ -111,7 +111,7 @@ class VerificationForm(Form):
         failed_subreddits = []
 
         #TODO: add verification failure, result logging and display
-        for gs in gender.gendersubreddit_set.all():
+        for gs in usertype.usertypesubreddit_set.all():
             moderator_username = gs.subreddit.credentials.reddit_username
             moderator_password = gs.subreddit.credentials.reddit_password
             flair_text = gs.flair_text
@@ -156,16 +156,15 @@ class VerificationForm(Form):
             result = True
         v = models.Verification()
         v.username = username
-        v.gender = gender
+        v.usertype = usertype
         v.verified_by = self.current_user
         v.save()
         return result
 
 
-
-class GenderForm(django_models.ModelForm):
+class UserTypeForm(django_models.ModelForm):
     class Meta:
-        model = models.Gender
+        model = models.UserType
         fields = (
             'name',
             'subreddits',
@@ -181,7 +180,7 @@ class GenderForm(django_models.ModelForm):
             initial = kwargs.setdefault('initial', {})
             initial['name'] = instance.name
             initial['subreddits'] = instance.subreddits.all()
-        super(GenderForm, self).__init__(*args, **kwargs)
+        super(UserTypeForm, self).__init__(*args, **kwargs)
 
         self.helper = DefaultFormHelper()
         self.helper.layout = Layout(
@@ -204,18 +203,18 @@ class GenderForm(django_models.ModelForm):
 
         return instance
 
-    def save_subreddits(self, gender, subreddits):
-        models.GenderSubreddit.objects \
-            .filter(gender=gender) \
+    def save_subreddits(self, usertype, subreddits):
+        models.UserTypeSubreddit.objects \
+            .filter(usertype=usertype) \
             .exclude(subreddit__in=subreddits) \
             .delete()
-        new_subreddits = filter(lambda s: s not in gender.subreddits.all(), subreddits)
+        new_subreddits = filter(lambda s: s not in usertype.subreddits.all(), subreddits)
         for subreddit in new_subreddits:
-            gs = models.GenderSubreddit()
-            gs.gender = gender
+            gs = models.UserTypeSubreddit()
+            gs.usertype = usertype
             gs.subreddit = subreddit
             gs.save()
-        gender.save()
+        usertype.save()
 
 
 class SubredditForm(forms.ModelForm):
@@ -232,9 +231,9 @@ class SubredditForm(forms.ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn btn-success'))
 
 
-class GenderSubredditsForm(forms.Form):
+class UserTypeSubredditsForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        super(GenderSubredditsForm, self).__init__(*args, **kwargs)
+        super(UserTypeSubredditsForm, self).__init__(*args, **kwargs)
         self.helper = DefaultFormHelper()
         self.helper.form_show_labels = False
 
@@ -261,9 +260,9 @@ class GenderSubredditsForm(forms.Form):
         )
 
     @transaction.atomic
-    def save(self, gender_subreddits):
+    def save(self, usertype_subreddits):
         #TODO: verify that subreddit list hasn't changed between requests
-        for gs in gender_subreddits:
+        for gs in usertype_subreddits:
             css_field_name = self.get_css_field_name(gs.subreddit.id)
             text_field_name = self.get_text_field_name(gs.subreddit.id)
             css = self.cleaned_data[css_field_name]
@@ -273,7 +272,7 @@ class GenderSubredditsForm(forms.Form):
             gs.save()
 
     def is_valid(self):
-        return super(GenderSubredditsForm, self).is_valid()
+        return super(UserTypeSubredditsForm, self).is_valid()
 
     @staticmethod
     def get_text_field_name(subreddit_id):

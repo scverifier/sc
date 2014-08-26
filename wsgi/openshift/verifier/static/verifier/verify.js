@@ -57,7 +57,7 @@
     if (!$('#id_username').val()) {
       return false;
     }
-    if ($.grep($('[name=gender]'), function(item) {
+    if ($.grep($('[name=usertype]'), function(item) {
       return $(item).is(':checked');
     }).length === 0) {
       return false;
