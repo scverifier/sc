@@ -24,31 +24,31 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('verifier', ['Subreddit'])
 
-        # Adding model 'Gender'
-        db.create_table('verifier_gender', (
+        # Adding model 'UserType'
+        db.create_table('verifier_usertype', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=64)),
         ))
-        db.send_create_signal('verifier', ['Gender'])
+        db.send_create_signal('verifier', ['UserType'])
 
-        # Adding model 'GenderSubreddit'
-        db.create_table('verifier_gendersubreddit', (
+        # Adding model 'UserTypeSubreddit'
+        db.create_table('verifier_usertypesubreddit', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('gender', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['verifier.Gender'])),
+            ('usertype', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['verifier.UserType'])),
             ('subreddit', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['verifier.Subreddit'])),
             ('flair_css', self.gf('django.db.models.fields.CharField')(blank=True, max_length=128, null=True)),
             ('flair_text', self.gf('django.db.models.fields.CharField')(blank=True, max_length=128, null=True)),
         ))
-        db.send_create_signal('verifier', ['GenderSubreddit'])
+        db.send_create_signal('verifier', ['UserTypeSubreddit'])
 
-        # Adding unique constraint on 'GenderSubreddit', fields ['gender', 'subreddit']
-        db.create_unique('verifier_gendersubreddit', ['gender_id', 'subreddit_id'])
+        # Adding unique constraint on 'UserTypeSubreddit', fields ['usertype', 'subreddit']
+        db.create_unique('verifier_usertypesubreddit', ['usertype_id', 'subreddit_id'])
 
         # Adding model 'Verification'
         db.create_table('verifier_verification', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('username', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('gender', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['verifier.Gender'])),
+            ('usertype', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['verifier.UserType'])),
             ('verified_by', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('verified_on', self.gf('django.db.models.fields.DateTimeField')(blank=True, auto_now=True)),
         ))
@@ -56,8 +56,8 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'GenderSubreddit', fields ['gender', 'subreddit']
-        db.delete_unique('verifier_gendersubreddit', ['gender_id', 'subreddit_id'])
+        # Removing unique constraint on 'UserTypeSubreddit', fields ['usertype', 'subreddit']
+        db.delete_unique('verifier_usertypesubreddit', ['usertype_id', 'subreddit_id'])
 
         # Deleting model 'RedditCredentials'
         db.delete_table('verifier_redditcredentials')
@@ -65,11 +65,11 @@ class Migration(SchemaMigration):
         # Deleting model 'Subreddit'
         db.delete_table('verifier_subreddit')
 
-        # Deleting model 'Gender'
-        db.delete_table('verifier_gender')
+        # Deleting model 'UserType'
+        db.delete_table('verifier_usertype')
 
-        # Deleting model 'GenderSubreddit'
-        db.delete_table('verifier_gendersubreddit')
+        # Deleting model 'UserTypeSubreddit'
+        db.delete_table('verifier_usertypesubreddit')
 
         # Deleting model 'Verification'
         db.delete_table('verifier_verification')
@@ -79,11 +79,11 @@ class Migration(SchemaMigration):
         'auth.group': {
             'Meta': {'object_name': 'Group'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '80', 'unique': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
             'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'to': "orm['auth.Permission']", 'symmetrical': 'False'})
         },
         'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
+            'Meta': {'object_name': 'Permission', 'unique_together': "(('content_type', 'codename'),)", 'ordering': "('content_type__app_label', 'content_type__model', 'codename')"},
             'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -103,28 +103,14 @@ class Migration(SchemaMigration):
             'last_name': ('django.db.models.fields.CharField', [], {'blank': 'True', 'max_length': '30'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'to': "orm['auth.Permission']", 'symmetrical': 'False', 'related_name': "'user_set'"}),
-            'username': ('django.db.models.fields.CharField', [], {'max_length': '30', 'unique': 'True'})
+            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'db_table': "'django_content_type'", 'object_name': 'ContentType'},
+            'Meta': {'object_name': 'ContentType', 'unique_together': "(('app_label', 'model'),)", 'ordering': "('name',)", 'db_table': "'django_content_type'"},
             'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'verifier.gender': {
-            'Meta': {'object_name': 'Gender'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'subreddits': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['verifier.Subreddit']", 'symmetrical': 'False', 'through': "orm['verifier.GenderSubreddit']"})
-        },
-        'verifier.gendersubreddit': {
-            'Meta': {'object_name': 'GenderSubreddit', 'unique_together': "(('gender', 'subreddit'),)"},
-            'flair_css': ('django.db.models.fields.CharField', [], {'blank': 'True', 'max_length': '128', 'null': 'True'}),
-            'flair_text': ('django.db.models.fields.CharField', [], {'blank': 'True', 'max_length': '128', 'null': 'True'}),
-            'gender': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['verifier.Gender']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'subreddit': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['verifier.Subreddit']"})
         },
         'verifier.redditcredentials': {
             'Meta': {'object_name': 'RedditCredentials'},
@@ -138,11 +124,25 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
+        'verifier.usertype': {
+            'Meta': {'object_name': 'UserType'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'subreddits': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['verifier.Subreddit']", 'symmetrical': 'False', 'through': "orm['verifier.UserTypeSubreddit']"})
+        },
+        'verifier.usertypesubreddit': {
+            'Meta': {'object_name': 'UserTypeSubreddit', 'unique_together': "(('usertype', 'subreddit'),)"},
+            'flair_css': ('django.db.models.fields.CharField', [], {'blank': 'True', 'max_length': '128', 'null': 'True'}),
+            'flair_text': ('django.db.models.fields.CharField', [], {'blank': 'True', 'max_length': '128', 'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'subreddit': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['verifier.Subreddit']"}),
+            'usertype': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['verifier.UserType']"})
+        },
         'verifier.verification': {
             'Meta': {'object_name': 'Verification'},
-            'gender': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['verifier.Gender']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'usertype': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['verifier.UserType']"}),
             'verified_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
             'verified_on': ('django.db.models.fields.DateTimeField', [], {'blank': 'True', 'auto_now': 'True'})
         }
